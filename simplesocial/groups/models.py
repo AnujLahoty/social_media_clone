@@ -1,13 +1,20 @@
+from django.conf import settings
+from django.urls import reverse
 from django.db import models
 from django.utils.text import slugify
+# from accounts.models import User
+
 import misaka
-from django.core.urlresolvers import reverse
-from django import template
-register = template.Library()
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
-# Create your models here.
+
+# https://docs.djangoproject.com/en/1.11/howto/custom-template-tags/#inclusion-tags
+# This is for the in_group_members check template tag
+from django import template
+register = template.Library()
+
+
 
 class Group(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -33,12 +40,11 @@ class Group(models.Model):
 
 
 class GroupMember(models.Model):
-    group = models.ForeignKey(Group, related_name="memberships")
-    user = models.ForeignKey(User,related_name='user_groups')
+    group = models.ForeignKey(Group, related_name="memberships", on_delete=models.CASCADE)
+    user = models.ForeignKey(User,related_name='user_groups', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.username
 
     class Meta:
         unique_together = ("group", "user")
-
